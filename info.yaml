@@ -5,7 +5,7 @@ info:
   description: API for managing tasks with user authentication
 basePath: /api
 schemes:
-  - http
+  - https
 paths:
   /register:
     post:
