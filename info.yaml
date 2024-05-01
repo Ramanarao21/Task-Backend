@@ -1,166 +1,231 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  version: "1.0.0"
-  title: "Express API"
-basePath: "/"
+  version: '1.0.0'
+  title: Task Management API
+  description: API for managing tasks with user authentication
+basePath: /api
 schemes:
-  - "https"
+  - http
 paths:
-  /api/register:
+  /register:
     post:
-      summary: "User Registration"
+      summary: Register a new user
       consumes:
-        - "application/json"
+        - application/json
       produces:
-        - "application/json"
+        - application/json
       parameters:
-        - in: "body"
-          name: "body"
-          description: "User registration data"
+        - in: body
+          name: user
+          description: User object
           required: true
           schema:
-            type: "object"
+            type: object
             properties:
               username:
-                type: "string"
+                type: string
               password:
-                type: "string"
+                type: string
       responses:
-        201:
-          description: "User registered successfully"
-        401:
-          description: "Username already used"
-        500:
-          description: "User registration failed"
-  /api/login:
+        '201':
+          description: User registered successfully
+          schema:
+            type: object
+            properties:
+              jwtToken:
+                type: string
+        '401':
+          description: Username already used
+        '500':
+          description: User registration failed
+  /login:
     post:
-      summary: "User Login"
+      summary: Login with username and password
       consumes:
-        - "application/json"
+        - application/json
       produces:
-        - "application/json"
+        - application/json
       parameters:
-        - in: "body"
-          name: "body"
-          description: "User login data"
+        - in: body
+          name: user
+          description: User credentials
           required: true
           schema:
-            type: "object"
+            type: object
             properties:
               username:
-                type: "string"
+                type: string
               password:
-                type: "string"
+                type: string
       responses:
-        200:
-          description: "User logged in successfully"
-        401:
-          description: "User is not registered or incorrect password"
-        500:
-          description: "User login failed"
-  /api/tasks:
+        '200':
+          description: User logged in successfully
+          schema:
+            type: object
+            properties:
+              jwtToken:
+                type: string
+        '401':
+          description: User is not registered or Incorrect password
+        '500':
+          description: User login failed
+  /tasks:
     post:
-      summary: "Create a Task"
+      summary: Create a new task
       consumes:
-        - "application/json"
+        - application/json
       produces:
-        - "application/json"
+        - application/json
       parameters:
-        - in: "header"
-          name: "Authorization"
-          type: "string"
+        - in: header
+          name: authorization
+          description: JWT token for authorization
           required: true
-        - in: "body"
-          name: "body"
-          description: "Task details"
+          type: string
+        - in: body
+          name: task
+          description: Task details
           required: true
           schema:
-            type: "object"
+            type: object
             properties:
               title:
-                type: "string"
+                type: string
               description:
-                type: "string"
+                type: string
               status:
-                type: "string"
+                type: string
       responses:
-        201:
-          description: "Task created successfully"
-        500:
-          description: "Task creation failed"
-  /api/tasks/{id}:
-    put:
-      summary: "Update a Task"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      parameters:
-        - in: "header"
-          name: "Authorization"
-          type: "string"
-          required: true
-        - in: "path"
-          name: "id"
-          type: "string"
-          required: true
-        - in: "body"
-          name: "body"
-          description: "Updated task details"
-          required: true
-          schema:
-            type: "object"
-            properties:
-              title:
-                type: "string"
-              description:
-                type: "string"
-              status:
-                type: "string"
-      responses:
-        201:
-          description: "Task Updated successfully"
-        403:
-          description: "Can update only your tasks"
-        500:
-          description: "Task updation failed"
+        '201':
+          description: Task created successfully
+        '401':
+          description: Authentication failed
+        '500':
+          description: Task creation failed
     get:
-      summary: "Retrieve a Task"
+      summary: Get all tasks
       consumes:
-        - "application/json"
+        - application/json
       produces:
-        - "application/json"
+        - application/json
       parameters:
-        - in: "header"
-          name: "Authorization"
-          type: "string"
+        - in: header
+          name: authorization
+          description: JWT token for authorization
           required: true
-        - in: "path"
-          name: "id"
-          type: "string"
-          required: true
+          type: string
       responses:
-        200:
-          description: "Task retrieved successfully"
-        500:
-          description: "Retrieving a task failed"
+        '200':
+          description: Tasks retrieved successfully
+          schema:
+            type: object
+            properties:
+              tasks:
+                type: array
+                items:
+                  $ref: '#/definitions/Task'
+        '401':
+          description: Authentication failed
+        '500':
+          description: Retrieving tasks failed
+  /tasks/{id}:
+    get:
+      summary: Get a specific task by ID
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: authorization
+          description: JWT token for authorization
+          required: true
+          type: string
+        - in: path
+          name: id
+          description: Task ID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Task retrieved successfully
+          schema:
+            $ref: '#/definitions/Task'
+        '401':
+          description: Authentication failed
+        '500':
+          description: Retrieving a task failed
+    put:
+      summary: Update a specific task by ID
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: authorization
+          description: JWT token for authorization
+          required: true
+          type: string
+        - in: path
+          name: id
+          description: Task ID
+          required: true
+          type: string
+        - in: body
+          name: task
+          description: Task details to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/Task'
+      responses:
+        '201':
+          description: Task updated successfully
+        '401':
+          description: Authentication failed
+        '403':
+          description: Can update only your tasks
+        '500':
+          description: Task update failed
     delete:
-      summary: "Delete a Task"
+      summary: Delete a specific task by ID
       consumes:
-        - "application/json"
+        - application/json
       produces:
-        - "application/json"
+        - application/json
       parameters:
-        - in: "header"
-          name: "Authorization"
-          type: "string"
+        - in: header
+          name: authorization
+          description: JWT token for authorization
           required: true
-        - in: "path"
-          name: "id"
-          type: "string"
+          type: string
+        - in: path
+          name: id
+          description: Task ID
           required: true
+          type: string
       responses:
-        200:
-          description: "Task deleted successfully"
-        500:
-          description: "Task delete operation failed"
+        '200':
+          description: Task deleted successfully
+        '401':
+          description: Authentication failed
+        '500':
+          description: Task deletion failed
+definitions:
+  Task:
+    type: object
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+      description:
+        type: string
+      status:
+        type: string
+      assignee_id:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
