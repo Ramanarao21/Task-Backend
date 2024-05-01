@@ -10,11 +10,12 @@ import { v4 } from "uuid";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import jwt from "jsonwebtoken";
+import cors from 'cors'
 
 const app = express();
 //accepts the data in form of JSON
 app.use(express.json());
-
+app.use(cors())
 app.listen(3000, () => {
   console.log("server is running on 3000 port");
 });
